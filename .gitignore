@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# IDE
+.vscode/
+
+# Marcelo specific files
+hw1.pdf
