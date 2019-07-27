@@ -55,36 +55,60 @@ class UpdateTools:
         #papers_table.head()
     
         # ### SQL # ###
-    
         sql_db = 'hw1.sqlite'
         conn = sqlite3.connect(sql_db, isolation_level=None)
         cur = conn.cursor()
-    
-        #if initialize == True:
+        
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables_list = cur.fetchall()  
+        print("\nTABLES_LIST:", tables_list, "\n")
+        
+        #this function builds new tables (only used once during initialization)
         def build_sql_table(dataframe, table_name):  
             dataframe.to_sql(table_name, conn, index_label = "id", if_exists="replace")
             print('Table',table_name, 'was created on database', sql_db)
-    
-        build_sql_table(authors_table, 'authors')
-        build_sql_table(papers_table, 'papers')
-        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        cur.fetchall()  
-    
-        # ### AUTHOR PAPER # ###
+            
+        #this function checks tables and inserts new data corresponding to user queries
+        def insert_data(table, column, df_table): 
+            cur.execute("SELECT * FROM {} ORDER BY id DESC LIMIT 1".format(table))
+            new_id = cur.fetchone()[0] + 1
+        
+            count = 1
+            for index, row in df_table.iterrows():
+                cur.execute("SELECT EXISTS(SELECT * FROM {} WHERE {} = '{}')".format(table, column, row[0]))
+                is_name = cur.fetchone()[0]
+                if is_name == 0: 
+                    new_id += 1
+                    cur.execute("INSERT INTO {} VALUES ({}, '{}')".format(table, new_id,row[0]))
+                    count += 1
+                    
+        #cur.execute('''CREATE TABLE IF NOT EXISTS author_paper 
+        #               (title_id INT, author_id INT)
+        #               ;''')
+        
+        if initialize == True:
+            cur.execute("DROP TABLE IF EXISTS author_paper")
+            cur.execute('''CREATE TABLE author_paper 
+                       (title_id INT, author_id INT)
+                       ;''')
+            build_sql_table(authors_table, 'authors')
+            build_sql_table(papers_table, 'papers')
+
+        if initialize == False:
+            insert_data("authors", "author", authors_table)
+            insert_data("papers", "title", papers_table)
+            
+        # ### AUTHOR PAPER - SQL INSERTIONS # ###
         author_paper_table = author_paper.authors.apply(pd.Series) \
             .merge(author_paper, left_index = True, right_index = True) \
             .drop(["authors"], axis = 1) \
             .melt(id_vars = ['title'], value_name = "author") \
             .drop("variable", axis = 1) \
             .dropna()
-    
+        
         #remove espaçamento nos nomes, se houver
         #author_paper_table = pd.DataFrame(author_paper_table.author.apply(lambda x: x.strip())) \
         #    .merge(author_paper_table[['title']], left_index = True, right_index = True)
-    
-        cur.execute('''CREATE TABLE IF NOT EXISTS author_paper 
-                       (title_id INT, author_id INT)
-                       ;''')
     
         for index, row in author_paper_table.iterrows():
             title = row[0] #TEM QUE TROCAR CASO REMOVA ESPAÇAMENTO
@@ -100,7 +124,6 @@ class UpdateTools:
             query = "INSERT INTO author_paper VALUES ({}, {})".format(title_id,author_id)
             cur.execute(query)
             conn.commit()
-        #if initialize = False:
             
         # # build networks
         # ### authors

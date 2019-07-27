@@ -27,16 +27,16 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     #author = request.args.get('Jeffrey Heer')    
-    result = scrape('Jeffrey Heer')
-    UpdateTools().update(result)
-    return render_template("index.html");
+    #result = scrape('Jeffrey Heer')
+    #UpdateTools().update(result) #will initialize database and plot graphs on browser
+    return render_template("index.html")
     
 @app.route('/action_page.php')
 def scraper():
     author = request.args.get('author')    
     result = scrape(author)
-    UpdateTools().update(result)
-    return render_template("index.html");
+    UpdateTools().update(result, initialize = False) # will update database, graphs will be regenerated
+    return render_template("index.html")
 
 @app.route('/addrec',methods = ['POST', 'GET']) #'/scrape?author=Jeffrey+Heer'
 def scrape2():
