@@ -2,41 +2,65 @@
 TO RUN THIS CODE on terminal:
 export FLASK_APP=app.py
 flask run
-
-decorators: https://realpython.com/primer-on-python-decorators/
+OR
+python app.py
 """
-import os
-#import sqlite3
-#from scrape_scholar import scrape
-from flask import Flask, render_template,request,g
+#import os
+import sqlite3
+from bs4 import BeautifulSoup
+import requests
+from flask import Flask, render_template,request,g, redirect
+import pandas as pd
+import matplotlib.pyplot as plt
+import networkx as nx
 
-DATABASE = 'hw1.sqlite'
+#self-made tools
+import scrape_scholar
+from scrape_scholar import scrape
+import update_papers
+from update_papers import UpdateTools
+#import csv
 
 app = Flask(__name__)
+#DATABASE = 'hw1.sqlite'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    #return 'Hello, World!'
+    author = request.args.get('Jeffrey Heer')    
+    result = scrape(author)
+    UpdateTools().update(result)
     return render_template("index.html");
-    #return render_template("basic_working_template.html");
     
-#using sql: https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3/
-@app.route('/scrape',methods = ['POST'])
-def scrape():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
+@app.route('/action_page.php')
+def scraper():
+    author = request.args.get('author')    
+    result = scrape(author)
+    UpdateTools().update(result)
+    return render_template("index.html");
+
+@app.route('/addrec',methods = ['POST', 'GET']) #'/scrape?author=Jeffrey+Heer'
+def scrape2():
+    return "Hello World"
     
 if __name__ == '__main__':
-    app.run(debug=True, port=8000, host='0.0.0.0')
-    
-    
+    app.run(debug=True, port=5000)#, host='0.0.0.0')
     
     
 #DRAFTS
 """
+#using sql: https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3/
+# https://www.tutorialspoint.com/flask/flask_sqlite
+# /action_page.php?author=Jeffrey+Heer
     
+    #file = "test.csv"
+    #writer = csv.writer(open(file, 'w'))
+    #writer.writerow(author)
+    
+    #if db is None:
+    #    db = g._database = sqlite3.connect(DATABASE)
+    #db = g._database = sqlite3.connect(DATABASE)
+    #print (type(db))
+
 @app.route("/")
 def index():
     return render_template("index.html");

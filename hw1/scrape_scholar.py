@@ -1,43 +1,29 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# * download chrome driver, stable release win-32: http://chromedriver.chromium.org/
-# * unzip and move it to C:\Windows
-# * more: https://sites.google.com/a/chromium.org/chromedriver/getting-started
-
-# In[3]:
-
-
 from splinter import Browser
-from bs4 import BeautifulSoup
-import requests
-#import re
 import time
-#import pandas as pd
-#import sqlite3
-#import matplotlib.pyplot as plt
-#import networkx as nx
 
-
-# # google scholar navigation
-executable_path = {'executable_path':r'C:\Windows\chromedriver.exe'}
-# In[4]:
-
-
-def scrape(name):
-    #with Browser('chrome', **executable_path) as browser:
+# # google scholar navigation 
+def scrape(author):
     # Visit URL
-    browser = Browser(driver_name='chrome', headless=True) #headless=False will show the browser navigation
+    browser = Browser(driver_name='chrome', headless=False) #headless=False will show the browser navigation
     url = "https://scholar.google.com.br/"
     browser.visit(url)
-    browser.fill('q', 'Jeffrey Heer')
+    browser.fill('q', author)
 
     # Find and click the 'search' button
     button = browser.find_by_name('btnG')
     time.sleep(1) # needs to sleep for the button to become active
     button.click()
 
-    # Find and click the first link
+    # If the profile doesn't exist, stop.    
+    profile_check = browser.html
+    if "feather-72.png" not in profile_check:
+        print("profile does not exist")
+        return
+    
+    # Find and click the first link (if profile exists).
     button = browser.find_link_by_partial_href('citations?user=')
     time.sleep(1)
     button.click()
@@ -52,4 +38,4 @@ def scrape(name):
 
     #get html
     return browser.html
-
+    
