@@ -26,8 +26,8 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    author = request.args.get('Jeffrey Heer')    
-    result = scrape(author)
+    #author = request.args.get('Jeffrey Heer')    
+    result = scrape('Jeffrey Heer')
     UpdateTools().update(result)
     return render_template("index.html");
     

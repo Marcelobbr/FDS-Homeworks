@@ -20,7 +20,7 @@ def scrape(author):
     # If the profile doesn't exist, stop.    
     profile_check = browser.html
     if "feather-72.png" not in profile_check:
-        print("profile does not exist")
+        print("\nERROR: PROFILE DOES NOT EXIST. PLEASE CHECK YOUR QUERY OR TYPE ANOTHER NAME.\n")
         return
     
     # Find and click the first link (if profile exists).
