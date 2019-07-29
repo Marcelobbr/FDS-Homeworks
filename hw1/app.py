@@ -16,6 +16,7 @@ from flask import Flask, render_template,request,g, redirect
 #scrape tool
 import scrape_scholar
 from scrape_scholar import scrape
+
 #update tool: will update (or clear) database and generate graphics
 import update_db_and_graphics
 from update_db_and_graphics import UpdateTools
@@ -27,12 +28,10 @@ search_history = []
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    
     #author = request.args.get('Jeffrey Heer')    
     #result = scrape('Jeffrey Heer')
     #UpdateTools().update(result) #will initialize database and plot graphs
     search_history = []
-    print("\nSEARCH HISTORY:", search_history)
     UpdateTools().update('', initialize = True)  #limpa base de dados
     return render_template("index.html")
     
@@ -45,13 +44,14 @@ def scraper():
         result = scrape(author)
         UpdateTools().update(result, initialize = False) # will update database, graphs will be regenerated
         search_history.append(author)
-    else: print("\nauthor was already researched. Please select another author or clear the database in the button at the end of the page.\n")
+        print("\nJOB FINISHED\n")
+    else: print("\nauthor was already searched. Please select another author or clear the database in the button at the end of the page.\n")
     return render_template("index.html")
 
 @app.route('/clear')
 def clear_all():
     search_history = []
-    print("\nSEARCH HISTORY:", search_history)
+    print("\nSEARCH HISTORY  CLEARED\n")
     UpdateTools().update('', initialize = True)  #limpa base de dados
     return render_template("index.html")
     
@@ -64,7 +64,4 @@ References:
 # https://www.tutorialspoint.com/flask/flask_sqlite
 # html button: https://www.w3schools.com/bootstrap/bootstrap_navbar.asp
     #used template: navbar forms
-
-#DRAFTS
-# /scrape?author=Jeffrey+Heer
 """

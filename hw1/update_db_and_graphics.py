@@ -13,32 +13,8 @@ class UpdateTools:
     def __init__(self):
         pass
     
-    def update(self, papers, initialize=True):
-        if papers is None: return
-        
-        # def plot_networks(table, aggregator, grouped_id):
-        #     G=nx.Graph()
-        #     df = pd.read_sql_query('SELECT * FROM {}'.format(table),conn)
-        #     labels={}
-        #     for index,row in df.iterrows():
-        #         G.add_node(row[0])
-        #         labels[row[0]]=row[1]
-        #     author_paper = pd.read_sql_query('SELECT * FROM author_paper',conn)
-        #     author_paper = author_paper.sort_values(by=aggregator)
-        
-        #     graph = list(author_paper.groupby([aggregator])[grouped_id].apply(list))
-        #     for group in graph:
-        #         if len(group)<2: continue
-        #         for i in range(0,len(group)-1):
-        #             for j in range(i+1,len(group)):
-        #                 G.add_edge(group[i],group[j])
-        #     pos=nx.spring_layout(G, k=0.2, weight=1, iterations=50)
-        #     plt.figure(3,figsize=(12,12)) 
-        #     nx.draw_networkx(G, pos, labels=labels, alpha=0.7)
-        #     plt.axis('off')
-        #     file = "static/{}_graph.png".format(table)
-        #     plt.savefig(file)
-        #     plt.clf()
+    def update(self, results_dict, initialize=True):
+        if results_dict is None: return
                    
         #initialize sql db
         sql_db = 'hw1.sqlite'
@@ -46,20 +22,23 @@ class UpdateTools:
         cur = conn.cursor()
         
         if initialize == True:
-            #cur.execute("DELETE FROM authors")
-            #cur.execute("DELETE FROM papers")
-            #cur.execute("DELETE FROM author_paper")
             for table in ['authors', 'papers', 'author_paper']:
                 cur.execute("DROP TABLE IF EXISTS {}".format(table))
-            cur.execute('''CREATE TABLE authors (id INT, author TEXT) ;''')
-            cur.execute('''CREATE TABLE papers (id INT, title TEXT) ;''')
-            cur.execute('''CREATE TABLE author_paper (title_id INT, author_id INT) ;''')
+            queries = '''
+            CREATE TABLE papers (id INT PRIMARY KEY, title TEXT) ;
+            CREATE TABLE authors (id INT PRIMARY KEY, author TEXT) ;
+            CREATE TABLE author_paper (title_id INT, author_id INT,
+            FOREIGN KEY(title_id) REFERENCES paper(id)
+            FOREIGN KEY(author_id) REFERENCES author(id)
+            );'''
+            cur.executescript(queries)
+            print('DONE')
             graphic_tools().plot_networks('authors', 'title_id', 'author_id', conn)
             graphic_tools().plot_networks('papers', 'author_id', 'title_id', conn)
             return
         
         # ### AUTHORS # ###
-        author_paper = pd.DataFrame(papers, columns=['title', 'authors'])
+        author_paper = pd.DataFrame(results_dict, columns=['title', 'authors'])
     
         authors_table = author_paper.authors.apply(pd.Series).stack(dropna=True).reset_index(drop=True)
         authors_table = pd.DataFrame(authors_table)[0].apply(lambda x: x.strip()).unique()
@@ -99,21 +78,12 @@ class UpdateTools:
                     cur.execute("INSERT INTO {} VALUES ({}, '{}')".format(table, new_id,row[0]))
                     count += 1
         
+        # ### AUTHORS AND PAPERS - SQL INSERTIONS # ###
         print("\nPOPULATE AUTHORS AND PAPERS TABLES\n")
-#         if initialize == True:
-#             cur.execute("DROP TABLE IF EXISTS author_paper")
-#             cur.execute('''CREATE TABLE author_paper 
-#                        (title_id INT, author_id INT)
-#                        ;''')
-            
-#             build_sql_table(authors_table, 'authors')
-#             build_sql_table(papers_table, 'papers')
-
-        #if initialize == False:
         insert_data("authors", "author", authors_table)
         insert_data("papers", "title", papers_table)
             
-        # ### AUTHOR PAPER - SQL INSERTIONS # ###
+        # ### AUTHOR_PAPER - SQL INSERTION # ###
         author_paper_table = author_paper.authors.apply(pd.Series) \
             .merge(author_paper, left_index = True, right_index = True) \
             .drop(["authors"], axis = 1) \
@@ -121,7 +91,7 @@ class UpdateTools:
             .drop("variable", axis = 1) \
             .dropna()
     
-        print("\nPOPULATE AUTHOR_PAPER_TABLE\n")
+        print("\nPOPULATE AUTHOR_PAPER TABLE\n")
         for index, row in author_paper_table.iterrows():
             title = row[0] 
             author = row[1]
@@ -132,12 +102,15 @@ class UpdateTools:
             author_id = cur.fetchone()[0]
             cur.execute("INSERT INTO author_paper VALUES ({}, {})".format(title_id,author_id))
             conn.commit()
-        print('Table author_paper was created on database', sql_db)
+        
+        print('All tables were updated on database', sql_db)
             
         # # BUILD NETWORKS            
         print("\nDRAWING GRAPHS\n")
         graphic_tools().plot_networks('authors', 'title_id', 'author_id', conn)
         graphic_tools().plot_networks('papers', 'author_id', 'title_id', conn)
+        print("\nGRAPHS GENERATED AND SAVED IN FOLDER\n")
+        conn.close()
         
 class graphic_tools:
     def __init__(self):

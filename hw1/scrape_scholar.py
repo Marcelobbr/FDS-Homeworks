@@ -61,5 +61,4 @@ def scrape(author):
             authors = [re.sub("[\'\"]", "", a) for a in authors] # evita erro de sintaxe no sql
             paper['authors'] = authors
             papers.append(paper)
-    papers = papers[:15] #CHANGE BEFORE SUBMISSION
     return papers
