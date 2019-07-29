@@ -12,41 +12,40 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 from flask import Flask, render_template,request,g, redirect
-from flask_cache  import Cache
+#from flask_cache  import Cache
 
 #self-made tools
 import scrape_scholar
 from scrape_scholar import scrape
-import update_papers
-from update_papers import UpdateTools
+import update_db_and_graphics
+from update_db_and_graphics import UpdateTools
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-cache = Cache(app,config={'CACHE_TYPE': 'null'})
+#cache = Cache(app,config={'CACHE_TYPE': 'simple'})
 #app.config["CACHE_TYPE"] = "null"
-
-# change to "redis" and restart to cache again
-
-# some time later
-cache.init_app(app)
+#cache.init_app(app)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    cache.clear()
-    author = request.args.get('Jeffrey Heer')    
-    result = scrape('Jeffrey Heer')
-    UpdateTools().update(result) #will initialize database and plot graphs on browser
+    #author = request.args.get('Jeffrey Heer')    
+    #result = scrape('Jeffrey Heer')
+    #result = ''
+    #UpdateTools().update(result) #will initialize database and plot graphs
     return render_template("index.html")
     
-@app.route('/action_page.php')
+@app.route('/scrape') #action_page.php (also in html)
 def scraper():
     author = request.args.get('author')    
     result = scrape(author)
+    #result = ''
     UpdateTools().update(result, initialize = False) # will update database, graphs will be regenerated
     return render_template("index.html")
 
-@app.route('/addrec',methods = ['POST', 'GET']) #'/scrape?author=Jeffrey+Heer'
-def scrape2():
+@app.route('/clear')
+def clear_all():
+    UpdateTools().update(result, initialize = True)  #limpa base de dados
     return "Hello World"
     
 if __name__ == '__main__':
@@ -60,8 +59,5 @@ References:
     #check for navbar forms
 
 #DRAFTS
-# /action_page.php?author=Jeffrey+Heer
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000, debug=True);
-    
+# /scrape?author=Jeffrey+Heer
 """
