@@ -6,34 +6,25 @@ $    flask run
 $    python app.py
 """
 from flask import Flask,render_template,request,g, redirect
-
-#scrape tool
-#import scrape_scholar
-from scrape_scholar import scrape
-
-#update tool: to update (or clear) database and generate graphics
-#import update_db_and_graphics
-from update_db_and_graphics import UpdateTools
+from scrape_scholar import scrape #scrape tool
+from update_db_and_graphics import UpdateTools #update tool: to update (or clear) database and generate graphics
 
 app = Flask(__name__)
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # this method controls the cache memory of the browser
 
 search_history = []
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    #author = request.args.get('Jeffrey Heer')    
-    #result = scrape('Jeffrey Heer')
-    #UpdateTools().update(result) #will initialize database and plot graphs
     search_history = []
-    UpdateTools().update('', initialize = True)  #limpa base de dados
+    UpdateTools().update('', initialize = True)  #limpa todos os dados
+    print("\nSEARCH HISTORY AND ALL DATA CLEARED\n")
     return render_template("index.html")
     
-@app.route('/scrape') #action_page.php (also in html)
+@app.route('/scrape')
 def scraper():
     print("\nSEARCH HISTORY:", search_history)
     author = request.args.get('author')    
-    #papers =  {'title': 'D3: Data-Driven Documents',  'authors': ['M Bostock', 'V Ogievetsky', 'J Heer']}, {'title': 'Prefuse: a toolkit for interactive information visualization',  'authors': ['J Heer', 'SK Card', 'JA Landay']}, {'title': 'Vizster: Visualizing online social networks',  'authors': ['J Heer', 'D Boyd']}, {'title': 'Narrative visualization: Telling stories with data',  'authors': ['E Segel', 'J Heer']}# temp test
     if author not in search_history:
         result = scrape(author)
         UpdateTools().update(result, initialize = False) # will update database, graphs will be regenerated
@@ -45,9 +36,8 @@ def scraper():
 @app.route('/clear')
 def clear_all():
     search_history = []
-    print("\nSEARCH HISTORY  CLEARED")
     UpdateTools().update('', initialize = True)  #limpa base de dados
-    print("\nALL DATA  CLEARED\n")
+    print("\nSEARCH HISTORY AND ALL DATA CLEARED\n")
     return render_template("index.html")
     
 if __name__ == '__main__':
