@@ -1,24 +1,18 @@
 """
 TO RUN THIS CODE on terminal:
-    export FLASK_APP=app.py
-    flask run
+$    export FLASK_APP=app.py
+$    flask run
     OR
-    python app.py
+$    python app.py
 """
-#import sqlite3
-#from bs4 import BeautifulSoup
-#import requests
-#import pandas as pd
-#import matplotlib.pyplot as plt
-#import networkx as nx
-from flask import Flask, render_template,request,g, redirect
+from flask import Flask,render_template,request,g, redirect
 
 #scrape tool
-import scrape_scholar
+#import scrape_scholar
 from scrape_scholar import scrape
 
-#update tool: will update (or clear) database and generate graphics
-import update_db_and_graphics
+#update tool: to update (or clear) database and generate graphics
+#import update_db_and_graphics
 from update_db_and_graphics import UpdateTools
 
 app = Flask(__name__)
@@ -51,8 +45,9 @@ def scraper():
 @app.route('/clear')
 def clear_all():
     search_history = []
-    print("\nSEARCH HISTORY  CLEARED\n")
+    print("\nSEARCH HISTORY  CLEARED")
     UpdateTools().update('', initialize = True)  #limpa base de dados
+    print("\nALL DATA  CLEARED\n")
     return render_template("index.html")
     
 if __name__ == '__main__':

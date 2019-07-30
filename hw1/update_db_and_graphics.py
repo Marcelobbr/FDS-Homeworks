@@ -25,14 +25,14 @@ class UpdateTools:
             for table in ['authors', 'papers', 'author_paper']:
                 cur.execute("DROP TABLE IF EXISTS {}".format(table))
             queries = '''
-            CREATE TABLE papers (id INT PRIMARY KEY, title TEXT) ;
-            CREATE TABLE authors (id INT PRIMARY KEY, author TEXT) ;
+            CREATE TABLE papers (id INT PRIMARY KEY, title TEXT UNIQUE) ;
+            CREATE TABLE authors (id INT PRIMARY KEY, author TEXT UNIQUE) ;
             CREATE TABLE author_paper (title_id INT, author_id INT,
-            FOREIGN KEY(title_id) REFERENCES paper(id)
-            FOREIGN KEY(author_id) REFERENCES author(id)
+            FOREIGN KEY(title_id) REFERENCES papers(id)
+            FOREIGN KEY(author_id) REFERENCES authors(id)
             );'''
             cur.executescript(queries)
-            print('DONE')
+            # generate blank images
             graphic_tools().plot_networks('authors', 'title_id', 'author_id', conn)
             graphic_tools().plot_networks('papers', 'author_id', 'title_id', conn)
             return

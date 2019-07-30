@@ -4,7 +4,6 @@
 from splinter import Browser
 import time
 from bs4 import BeautifulSoup
-import requests
 import re
 
 ###################################################
@@ -44,7 +43,6 @@ def scrape(author):
         button.click()
 
     #get html
-    #return browser.html
     soup = BeautifulSoup(browser.html, 'html.parser')
     soup.findAll("td", {"class": "gsc_a_t"})
 
@@ -56,7 +54,8 @@ def scrape(author):
             paper = {}
             text = re.sub("[\'\"]", "", tr.find("a", {"class": "gsc_a_at"}).get_text()).strip() # evita erro de sintaxe no sql
             paper['title'] = text
-            authors = tr.find("div", {"class": "gs_gray"}).get_text().split(',')[:4]
+            authors = tr.find("div", {"class": "gs_gray"}).get_text().split(',')[:5]
+            authors = [a for a in authors if a !="..."] # in some cases, the 4th author might be ...
             authors = [a.strip().upper() for a in authors] #remove espaçamento antes de alguns nomes e resolve case sensitiveness
             authors = [re.sub("[\'\"]", "", a) for a in authors] # evita erro de sintaxe no sql
             paper['authors'] = authors
