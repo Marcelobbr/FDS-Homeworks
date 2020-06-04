@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+</head>
+
+<body>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-7">
+      <h3>Data Retrieval and Visualization</h3>
+      <p>Digite o nome do autor a ser pesquisado no campo de busca e aguarde a atualização dos grafos. </p>
+    </div>    
+  </div>
+
+<div class="row">
+    <form action="/scrape">
+      <div class="form-row">
+        <div class="form-group col-md-10">
+          <input type="text" class="form-control" placeholder="Search" name="author">
+        </div>
+        <div class="form-group col-md-2">
+          <button type="submit" class="btn">Submit</button>
+        </div>
+      </div>
+    </form>
+</div>
+<div class="row">  </div>
+
+<div class="row">
+     <div class="col-sm-2"><h1> </h1></div>
+      <div class="col-sm-4"><h1>Authors</h1></div>
+      <div class="col-sm-2"><h1> </h1></div>
+      <div class="col-sm-4"><h1>Papers</h1></div>
+</div>
+
+<div class="row">
+    <div class="col-sm-6"><img src="/static/authors_graph.png"" class="img-rounded" alt="Authors" width="700" height="500"></div>
+    <div class="col-sm-6"><img src="/static/papers_graph.png"" class="img-rounded" alt="Papers" width="700" height="500"></div>
+</div>
+
+<div class="row">
+    <div class="form-row">
+      <form action="/clear">
+        <div class="form-group col-md-5">
+            Clique no botão ao lado para limpar a base de dados e os gráficos. Use cautelosamente.
+        </div>
+        <div class="form-group col-md-7">
+          <button type="submit" class="btn btn-danger">Clear all data</button>
+        </div>
+      </form>
+      </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12"><p>Notas: Ao fazer nova query no buscador, a base SQL é atualizada e os arquivos de imagens são recriados.</p></div>
+</div>
+<div class="row">
+    <div class="col-sm-12"><p>Nomes testados: David Blei, Andrew Ng, Jorge Poco, Renato Rocha Souza, Michael Bostock, Hans Rosling (não tem perfil).</p></div>
+</div>
+<div class="row">_____________________________________________________________________________________________________________</div>
+<div class="row">_____________________________________________________________________________________________________________</div>
+</div>
+
+</body>
+</html>
