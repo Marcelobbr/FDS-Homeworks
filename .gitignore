@@ -107,8 +107,10 @@ venv.bak/
 .vscode/
 
 # Marcelo specific files
-hw1.pdf
-hw1/notebooks
-index - drafts.html
 graph_making_example.ipynb
 scholar-tests.ipynb
+notebooks/authors_graph.png
+notebooks/hw1.sqlite
+notebooks/papers_graph.png
+templates/index - drafts.html
+

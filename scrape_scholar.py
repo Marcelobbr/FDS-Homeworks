@@ -46,7 +46,7 @@ def scrape(author):
     soup = BeautifulSoup(browser.html, 'html.parser')
     soup.findAll("td", {"class": "gsc_a_t"})
 
-    print("\nBUILDING PAPERS DICIONARY.\n")
+    print("\nBUILDING PAPERS DICTIONARY.\n")
     papers = []
     table = soup.find("table", id="gsc_a_t") 
     for tr in table.find_all('tr')[2:]:
